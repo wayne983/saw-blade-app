@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Saw Blade App</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f7f7f9;
+        --card: #ffffff;
+        --text: #1b1b1f;
+        --muted: #5f6368;
+        --accent: #2b6cb0;
+        --border: #e0e0e5;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1115;
+          --card: #171a21;
+          --text: #f2f2f2;
+          --muted: #a0a4ad;
+          --accent: #63b3ed;
+          --border: #2a2f3a;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      header {
+        padding: 2.5rem 1.5rem 1rem;
+        text-align: center;
+      }
+
+      header h1 {
+        margin: 0 0 0.25rem;
+        font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem);
+      }
+
+      header p {
+        margin: 0 auto;
+        max-width: 38rem;
+        color: var(--muted);
+      }
+
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 1.5rem;
+        display: grid;
+        gap: 1.25rem;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+      }
+
+      .card h2 {
+        margin-top: 0;
+        font-size: 1.2rem;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.75rem;
+        background: rgba(43, 108, 176, 0.12);
+        color: var(--accent);
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      ul {
+        padding-left: 1.2rem;
+      }
+
+      .checklist {
+        display: grid;
+        gap: 0.6rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .checklist li {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .checklist input[type="checkbox"] {
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: var(--accent);
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 140px;
+        border-radius: 0.75rem;
+        border: 1px solid var(--border);
+        padding: 0.75rem;
+        font-size: 1rem;
+        background: transparent;
+        color: inherit;
+        resize: vertical;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+      }
+
+      button {
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        padding: 0.6rem 1rem;
+        border-radius: 999px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+      }
+
+      footer {
+        text-align: center;
+        padding: 1rem 1.5rem 2rem;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="pill">離線可用 · 單一檔案 · 手機友善</div>
+      <h1>Saw Blade App</h1>
+      <p>
+        這是一個輕量、可分享的工作區。把檔案放在手機裡，加入主畫面後即可像 App 一樣使用，
+        就算沒有網路也能記錄與追蹤。
+      </p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>專案摘要</h2>
+        <p>
+          這裡可放你的專案簡介、目標或聯絡方式。所有內容都在同一個 HTML 檔案中，
+          分享時只要傳一個檔案即可。
+        </p>
+        <ul>
+          <li>支援桌機與手機瀏覽器。</li>
+          <li>清單與備註會保存在本機。</li>
+          <li>不需要安裝或設定。</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>待辦清單</h2>
+        <ul class="checklist">
+          <li><label><input type="checkbox" data-key="idea" />確認核心想法</label></li>
+          <li><label><input type="checkbox" data-key="content" />整理分享內容</label></li>
+          <li><label><input type="checkbox" data-key="share" />分享給協作夥伴</label></li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>備註</h2>
+        <textarea id="notes" placeholder="輸入備註、聯絡資訊或下一步計畫..."></textarea>
+        <div class="actions">
+          <button id="save">儲存</button>
+          <button class="secondary" id="reset">重設</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      小提示：手機上可使用「加入主畫面」建立捷徑。
+    </footer>
+
+    <script>
+      const notesField = document.getElementById("notes");
+      const saveButton = document.getElementById("save");
+      const resetButton = document.getElementById("reset");
+      const checklistItems = document.querySelectorAll(".checklist input");
+
+      const loadState = () => {
+        notesField.value = localStorage.getItem("saw-blade-notes") || "";
+        checklistItems.forEach((item) => {
+          item.checked = localStorage.getItem(`saw-blade-${item.dataset.key}`) === "true";
+        });
+      };
+
+      const saveState = () => {
+        localStorage.setItem("saw-blade-notes", notesField.value.trim());
+        checklistItems.forEach((item) => {
+          localStorage.setItem(`saw-blade-${item.dataset.key}`, item.checked);
+        });
+      };
+
+      saveButton.addEventListener("click", () => {
+        saveState();
+        saveButton.textContent = "已儲存";
+        setTimeout(() => {
+          saveButton.textContent = "儲存";
+        }, 1200);
+      });
+
+      resetButton.addEventListener("click", () => {
+        if (confirm("確定要清除備註與清單嗎？")) {
+          notesField.value = "";
+          checklistItems.forEach((item) => {
+            item.checked = false;
+          });
+          saveState();
+        }
+      });
+
+      checklistItems.forEach((item) => {
+        item.addEventListener("change", saveState);
+      });
+
+      notesField.addEventListener("input", () => {
+        clearTimeout(notesField._timer);
+        notesField._timer = setTimeout(saveState, 800);
+      });
+
+      loadState();
+    </script>
+  </body>
+</html>
