@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Saw Blade App</title>
+    <title>鋸片診療系統</title>
     <style>
       :root {
         color-scheme: light dark;
@@ -13,6 +13,8 @@
         --muted: #5f6368;
         --accent: #2b6cb0;
         --border: #e0e0e5;
+        --warning: #c05621;
+        --success: #2f855a;
       }
 
       @media (prefers-color-scheme: dark) {
@@ -23,6 +25,8 @@
           --muted: #a0a4ad;
           --accent: #63b3ed;
           --border: #2a2f3a;
+          --warning: #f6ad55;
+          --success: #68d391;
         }
       }
 
@@ -44,18 +48,18 @@
       }
 
       header h1 {
-        margin: 0 0 0.25rem;
-        font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem);
+        margin: 0 0 0.35rem;
+        font-size: clamp(1.75rem, 2vw + 1rem, 2.6rem);
       }
 
       header p {
         margin: 0 auto;
-        max-width: 38rem;
+        max-width: 42rem;
         color: var(--muted);
       }
 
       main {
-        max-width: 900px;
+        max-width: 980px;
         margin: 0 auto;
         padding: 1.5rem;
         display: grid;
@@ -87,34 +91,10 @@
         font-weight: 600;
       }
 
-      ul {
-        padding-left: 1.2rem;
-      }
-
-      .checklist {
-        display: grid;
-        gap: 0.6rem;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-      }
-
-      .checklist li {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-      }
-
-      .checklist input[type="checkbox"] {
-        width: 1.1rem;
-        height: 1.1rem;
-        accent-color: var(--accent);
-      }
-
       .grid {
         display: grid;
-        gap: 0.75rem;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0.85rem;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       }
 
       label {
@@ -126,54 +106,14 @@
 
       input[type="text"],
       input[type="number"],
-      input[type="date"] {
+      input[type="date"],
+      select {
         border-radius: 0.65rem;
         border: 1px solid var(--border);
         padding: 0.6rem 0.75rem;
         font-size: 1rem;
         background: transparent;
         color: inherit;
-      }
-
-      .table {
-        display: grid;
-        gap: 0.75rem;
-      }
-
-      .row {
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr;
-        gap: 0.75rem;
-        align-items: center;
-      }
-
-      .row.header {
-        font-weight: 600;
-        color: var(--muted);
-      }
-
-      .item-total {
-        font-weight: 600;
-        text-align: right;
-      }
-
-      .summary {
-        margin-top: 1rem;
-        display: grid;
-        gap: 1rem;
-      }
-
-      .totals {
-        display: grid;
-        gap: 0.5rem;
-        font-size: 1.05rem;
-      }
-
-      .totals div {
-        display: flex;
-        justify-content: space-between;
-        border-top: 1px dashed var(--border);
-        padding-top: 0.4rem;
       }
 
       textarea {
@@ -186,6 +126,26 @@
         background: transparent;
         color: inherit;
         resize: vertical;
+      }
+
+      .symptoms {
+        display: grid;
+        gap: 0.6rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .symptoms li {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .symptoms input[type="checkbox"] {
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: var(--accent);
       }
 
       .actions {
@@ -211,6 +171,23 @@
         border: 1px solid var(--accent);
       }
 
+      .diagnosis {
+        display: grid;
+        gap: 0.6rem;
+      }
+
+      .diagnosis .item {
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px dashed var(--border);
+        background: rgba(47, 133, 90, 0.08);
+      }
+
+      .diagnosis .item.warning {
+        background: rgba(192, 86, 33, 0.12);
+        border-color: rgba(192, 86, 33, 0.4);
+      }
+
       footer {
         text-align: center;
         padding: 1rem 1.5rem 2rem;
@@ -222,78 +199,87 @@
   <body>
     <header>
       <div class="pill">離線可用 · 單一檔案 · 手機友善</div>
-      <h1>報價單小工具</h1>
+      <h1>鋸片診療系統</h1>
       <p>
-        這是一個可直接在手機開啟的報價單範本。輸入品項與單價即可自動加總，\n        支援本機保存與快速分享。
+        這是一個用來快速紀錄鋸片狀態、症狀與建議處置方式的工具。所有資料都保存在本機，
+        方便現場維修或與同事分享。
       </p>
     </header>
 
     <main>
       <section class="card">
-        <h2>客戶與專案資訊</h2>
-        <p>填寫下方資訊，報價單會自動保存於本機。</p>
+        <h2>鋸片基本資料</h2>
         <div class="grid">
-          <label>客戶名稱
-            <input id="clientName" type="text" placeholder="例：王小明" />
+          <label>鋸片型號
+            <input id="bladeModel" type="text" placeholder="例：SB-305" />
           </label>
-          <label>專案名稱
-            <input id="projectName" type="text" placeholder="例：網站改版" />
+          <label>直徑 (mm)
+            <input id="diameter" type="number" min="0" step="1" placeholder="305" />
           </label>
-          <label>報價日期
-            <input id="quoteDate" type="date" />
+          <label>齒數
+            <input id="teeth" type="number" min="0" step="1" placeholder="60" />
           </label>
-          <label>有效期限
-            <input id="quoteDue" type="date" />
+          <label>使用材質
+            <input id="material" type="text" placeholder="例：鋁材" />
+          </label>
+          <label>使用工時 (小時)
+            <input id="hours" type="number" min="0" step="1" placeholder="120" />
+          </label>
+          <label>最近維修日期
+            <input id="serviceDate" type="date" />
           </label>
         </div>
       </section>
 
       <section class="card">
-        <h2>報價品項</h2>
-        <div class="table">
-          <div class="row header">
-            <span>品項</span>
-            <span>數量</span>
-            <span>單價</span>
-            <span>小計</span>
-          </div>
-          <div class="row">
-            <input class="item-name" type="text" placeholder="例：設計費" data-item="0-name" />
-            <input class="item-qty" type="number" min="0" step="1" value="1" data-item="0-qty" />
-            <input class="item-price" type="number" min="0" step="1" value="0" data-item="0-price" />
-            <span class="item-total" data-item="0-total">0</span>
-          </div>
-          <div class="row">
-            <input class="item-name" type="text" placeholder="例：開發費" data-item="1-name" />
-            <input class="item-qty" type="number" min="0" step="1" value="1" data-item="1-qty" />
-            <input class="item-price" type="number" min="0" step="1" value="0" data-item="1-price" />
-            <span class="item-total" data-item="1-total">0</span>
-          </div>
-          <div class="row">
-            <input class="item-name" type="text" placeholder="例：維護費" data-item="2-name" />
-            <input class="item-qty" type="number" min="0" step="1" value="1" data-item="2-qty" />
-            <input class="item-price" type="number" min="0" step="1" value="0" data-item="2-price" />
-            <span class="item-total" data-item="2-total">0</span>
-          </div>
-        </div>
-        <div class="summary">
-          <label>折扣 (%) <input id="discount" type="number" min="0" max="100" step="1" value="0" /></label>
-          <label>稅率 (%) <input id="taxRate" type="number" min="0" max="100" step="1" value="5" /></label>
-          <div class="totals">
-            <div><span>小計</span><strong id="subtotal">0</strong></div>
-            <div><span>折扣後</span><strong id="discountedTotal">0</strong></div>
-            <div><span>含稅總計</span><strong id="grandTotal">0</strong></div>
-          </div>
+        <h2>現場症狀</h2>
+        <ul class="symptoms">
+          <li><label><input type="checkbox" data-symptom="vibration" />切割震動或偏擺</label></li>
+          <li><label><input type="checkbox" data-symptom="burn" />切割面有燒焦或冒煙</label></li>
+          <li><label><input type="checkbox" data-symptom="chip" />齒尖崩裂或斷齒</label></li>
+          <li><label><input type="checkbox" data-symptom="slow" />切不動／進給變慢</label></li>
+          <li><label><input type="checkbox" data-symptom="noise" />異音明顯</label></li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>機台與切削參數</h2>
+        <div class="grid">
+          <label>主軸轉速 (RPM)
+            <input id="rpm" type="number" min="0" step="1" placeholder="3200" />
+          </label>
+          <label>進給速度 (mm/min)
+            <input id="feed" type="number" min="0" step="1" placeholder="1200" />
+          </label>
+          <label>冷卻方式
+            <select id="cooling">
+              <option value="dry">乾式</option>
+              <option value="mist">微量噴霧</option>
+              <option value="wet">水溶性冷卻</option>
+            </select>
+          </label>
+          <label>夾持狀態
+            <select id="clamp">
+              <option value="stable">穩定</option>
+              <option value="loose">鬆動</option>
+              <option value="unknown">不確定</option>
+            </select>
+          </label>
         </div>
       </section>
 
       <section class="card">
-        <h2>備註與付款方式</h2>
-        <textarea id="notes" placeholder="輸入付款條件、交付方式或備註..."></textarea>
+        <h2>診斷建議</h2>
+        <div class="diagnosis" id="diagnosisList"></div>
         <div class="actions">
           <button id="save">儲存</button>
           <button class="secondary" id="reset">清空</button>
         </div>
+      </section>
+
+      <section class="card">
+        <h2>維修備註</h2>
+        <textarea id="notes" placeholder="記錄修磨次數、備品編號或後續追蹤事項..."></textarea>
       </section>
     </main>
 
@@ -305,85 +291,111 @@
       const notesField = document.getElementById("notes");
       const saveButton = document.getElementById("save");
       const resetButton = document.getElementById("reset");
-      const itemRows = Array.from(document.querySelectorAll(".row")).slice(1);
-      const subtotalField = document.getElementById("subtotal");
-      const discountedTotalField = document.getElementById("discountedTotal");
-      const grandTotalField = document.getElementById("grandTotal");
-      const discountField = document.getElementById("discount");
-      const taxRateField = document.getElementById("taxRate");
-      const clientName = document.getElementById("clientName");
-      const projectName = document.getElementById("projectName");
-      const quoteDate = document.getElementById("quoteDate");
-      const quoteDue = document.getElementById("quoteDue");
+      const diagnosisList = document.getElementById("diagnosisList");
+      const symptomChecks = Array.from(document.querySelectorAll(".symptoms input"));
 
-      const formatNumber = (value) =>
-        new Intl.NumberFormat("zh-Hant-TW", { maximumFractionDigits: 0 }).format(value);
+      const fields = {
+        bladeModel: document.getElementById("bladeModel"),
+        diameter: document.getElementById("diameter"),
+        teeth: document.getElementById("teeth"),
+        material: document.getElementById("material"),
+        hours: document.getElementById("hours"),
+        serviceDate: document.getElementById("serviceDate"),
+        rpm: document.getElementById("rpm"),
+        feed: document.getElementById("feed"),
+        cooling: document.getElementById("cooling"),
+        clamp: document.getElementById("clamp"),
+      };
 
-      const updateTotals = () => {
-        let subtotal = 0;
-        itemRows.forEach((row) => {
-          const qty = Number(row.querySelector(".item-qty").value || 0);
-          const price = Number(row.querySelector(".item-price").value || 0);
-          const total = qty * price;
-          subtotal += total;
-          row.querySelector(".item-total").textContent = formatNumber(total);
+      const buildDiagnosis = () => {
+        const items = [];
+        const has = (key) => symptomChecks.find((item) => item.dataset.symptom === key)?.checked;
+
+        if (has("vibration") || fields.clamp.value === "loose") {
+          items.push({
+            text: "檢查夾持與主軸跳動，確認法蘭盤、夾具是否鎖緊並重新校正。",
+            type: "warning",
+          });
+        }
+        if (has("burn") || fields.cooling.value === "dry") {
+          items.push({
+            text: "建議降低轉速或進給，並使用適當冷卻，避免燒焦與刀口退火。",
+            type: "warning",
+          });
+        }
+        if (has("chip")) {
+          items.push({
+            text: "檢查齒尖損耗並評估重磨或更換鋸片，必要時降低進給速度。",
+            type: "warning",
+          });
+        }
+        if (has("slow")) {
+          items.push({
+            text: "檢查鋸片磨耗程度，必要時重新研磨或更換合適齒型。",
+            type: "warning",
+          });
+        }
+        if (has("noise")) {
+          items.push({
+            text: "確認軸承與切削面狀況，檢查是否有異物或安裝偏移。",
+            type: "warning",
+          });
+        }
+
+        if (items.length === 0) {
+          items.push({
+            text: "目前未勾選異常症狀，建議依保養週期定期檢查與清潔鋸片。",
+            type: "normal",
+          });
+        }
+
+        diagnosisList.innerHTML = "";
+        items.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = `item${item.type === "warning" ? " warning" : ""}`;
+          div.textContent = item.text;
+          diagnosisList.appendChild(div);
         });
-
-        const discount = Number(discountField.value || 0) / 100;
-        const taxRate = Number(taxRateField.value || 0) / 100;
-        const discountedTotal = subtotal * (1 - discount);
-        const grandTotal = discountedTotal * (1 + taxRate);
-
-        subtotalField.textContent = formatNumber(subtotal);
-        discountedTotalField.textContent = formatNumber(discountedTotal);
-        grandTotalField.textContent = formatNumber(grandTotal);
       };
 
       const loadState = () => {
-        notesField.value = localStorage.getItem("saw-blade-notes") || "";
-        clientName.value = localStorage.getItem("saw-blade-client") || "";
-        projectName.value = localStorage.getItem("saw-blade-project") || "";
-        quoteDate.value = localStorage.getItem("saw-blade-date") || "";
-        quoteDue.value = localStorage.getItem("saw-blade-due") || "";
-        discountField.value = localStorage.getItem("saw-blade-discount") || "0";
-        taxRateField.value = localStorage.getItem("saw-blade-tax") || "5";
-
-        itemRows.forEach((row, index) => {
-          row.querySelector(".item-name").value =
-            localStorage.getItem(`saw-blade-item-${index}-name`) || "";
-          row.querySelector(".item-qty").value =
-            localStorage.getItem(`saw-blade-item-${index}-qty`) || "1";
-          row.querySelector(".item-price").value =
-            localStorage.getItem(`saw-blade-item-${index}-price`) || "0";
+        Object.keys(fields).forEach((key) => {
+          const saved = localStorage.getItem(`saw-blade-${key}`);
+          if (saved !== null) {
+            fields[key].value = saved;
+          }
         });
-
-        updateTotals();
+        notesField.value = localStorage.getItem("saw-blade-notes") || "";
+        symptomChecks.forEach((item) => {
+          item.checked = localStorage.getItem(`saw-blade-symptom-${item.dataset.symptom}`) === "true";
+        });
+        buildDiagnosis();
       };
 
       const saveState = () => {
+        Object.keys(fields).forEach((key) => {
+          localStorage.setItem(`saw-blade-${key}`, fields[key].value);
+        });
         localStorage.setItem("saw-blade-notes", notesField.value.trim());
-        localStorage.setItem("saw-blade-client", clientName.value.trim());
-        localStorage.setItem("saw-blade-project", projectName.value.trim());
-        localStorage.setItem("saw-blade-date", quoteDate.value);
-        localStorage.setItem("saw-blade-due", quoteDue.value);
-        localStorage.setItem("saw-blade-discount", discountField.value);
-        localStorage.setItem("saw-blade-tax", taxRateField.value);
-
-        itemRows.forEach((row, index) => {
-          localStorage.setItem(
-            `saw-blade-item-${index}-name`,
-            row.querySelector(".item-name").value.trim()
-          );
-          localStorage.setItem(
-            `saw-blade-item-${index}-qty`,
-            row.querySelector(".item-qty").value
-          );
-          localStorage.setItem(
-            `saw-blade-item-${index}-price`,
-            row.querySelector(".item-price").value
-          );
+        symptomChecks.forEach((item) => {
+          localStorage.setItem(`saw-blade-symptom-${item.dataset.symptom}`, item.checked);
         });
       };
+
+      const bindAutoSave = (element) => {
+        element.addEventListener("input", () => {
+          buildDiagnosis();
+          clearTimeout(element._timer);
+          element._timer = setTimeout(saveState, 500);
+        });
+      };
+
+      Object.values(fields).forEach(bindAutoSave);
+      symptomChecks.forEach((item) => item.addEventListener("change", () => {
+        buildDiagnosis();
+        saveState();
+      }));
+      bindAutoSave(notesField);
 
       saveButton.addEventListener("click", () => {
         saveState();
@@ -395,37 +407,18 @@
 
       resetButton.addEventListener("click", () => {
         if (confirm("確定要清除所有內容嗎？")) {
-          notesField.value = "";
-          clientName.value = "";
-          projectName.value = "";
-          quoteDate.value = "";
-          quoteDue.value = "";
-          discountField.value = "0";
-          taxRateField.value = "5";
-          itemRows.forEach((row) => {
-            row.querySelector(".item-name").value = "";
-            row.querySelector(".item-qty").value = "1";
-            row.querySelector(".item-price").value = "0";
+          Object.values(fields).forEach((field) => {
+            field.value = "";
           });
-          updateTotals();
+          fields.cooling.value = "dry";
+          fields.clamp.value = "stable";
+          notesField.value = "";
+          symptomChecks.forEach((item) => {
+            item.checked = false;
+          });
+          buildDiagnosis();
           saveState();
         }
-      });
-
-      const bindAutoSave = (element) => {
-        element.addEventListener("input", () => {
-          updateTotals();
-          clearTimeout(element._timer);
-          element._timer = setTimeout(saveState, 500);
-        });
-      };
-
-      [notesField, clientName, projectName, quoteDate, quoteDue, discountField, taxRateField].forEach(
-        bindAutoSave
-      );
-
-      itemRows.forEach((row) => {
-        row.querySelectorAll("input").forEach(bindAutoSave);
       });
 
       loadState();
