@@ -14,6 +14,7 @@
         --accent: #000080; /* 海軍藍 */
         --border: #dddfe2;
         --input-bg: #f0f2f5;
+        --success: #198754;
       }
 
       @media (prefers-color-scheme: dark) {
@@ -81,6 +82,17 @@
         border-bottom: 2px solid var(--accent);
         padding-bottom: 0.5rem;
         margin-bottom: 1.25rem;
+      }
+
+      .diagnosis-card {
+        border: 2px solid var(--success);
+        background: rgba(25, 135, 84, 0.05);
+        display: none;
+      }
+
+      .diagnosis-card h2 {
+        color: var(--success);
+        border-color: var(--success);
       }
 
       .form-group {
@@ -189,11 +201,16 @@
     </header>
 
     <main>
+        <section class="card diagnosis-card" id="diagnosis-card">
+        <h2>初步診斷建議</h2>
+        <div id="diagnosis-output"></div>
+      </section>
+
       <section class="card">
         <h2>設備與鋸片資訊</h2>
         <div class="form-group">
           <label for="rpm">1. 機台轉速 (RPM)</label>
-          <input type="text" id="rpm" placeholder="例如: 3000">
+          <input type="number" id="rpm" placeholder="例如: 3000">
         </div>
         <div class="form-group">
           <label for="spec">2. 鋸片規格 (外徑*齒厚*齒數)</label>
@@ -213,7 +230,7 @@
         </div>
         <div class="form-group">
           <label for="material_thickness">4. 切削物厚度 (mm)</label>
-          <input type="text" id="material_thickness" placeholder="例如: 10">
+          <input type="number" step="0.1" id="material_thickness" placeholder="例如: 10">
         </div>
         <div class="form-group">
           <label for="material_shape">5. 性質敘述</label>
@@ -264,6 +281,44 @@
         inputs[id] = document.getElementById(id);
       });
 
+      // 診斷邏輯
+      const updateDiagnosis = () => {
+        const rpm = parseInt(inputs.rpm.value);
+        const thick = parseFloat(inputs.material_thickness.value);
+        const material = inputs.material_type.value;
+        const resultDiv = document.getElementById('diagnosis-output');
+        const resultCard = document.getElementById('diagnosis-card');
+
+        if (!rpm || !thick) {
+          resultCard.style.display = 'none';
+          return;
+        }
+
+        resultCard.style.display = 'block';
+        let advice = "";
+
+        if (material.toUpperCase().includes("HSS")) {
+          advice = "💡 HSS 鋸片需由專家根據具體設備與工況另行判斷，建議直接聯繫專家。";
+        } else if (rpm >= 1100 && rpm <= 1600) {
+          advice = "<strong>✅【低速切斷機/切鐵建議】</strong><br>";
+          if (thick < 1) advice += "建議齒數：<strong>90T</strong>";
+          else if (thick >= 1 && thick <= 2) advice += "建議齒數：<strong>80T</strong>";
+          else if (thick > 2 && thick <= 4) advice += "建議齒數：<strong>70T</strong>";
+          else advice += "建議齒數：<strong>60T</strong>";
+        } else if (rpm >= 2800 && rpm <= 3500) {
+          advice = "<strong>✅【高速切割建議】</strong><br>";
+          if (thick < 5) advice += "建議齒數：<strong>120T</strong>";
+          else if (thick >= 5 && thick <= 10) advice += "建議齒數：<strong>100T</strong>";
+          else if (thick > 10 && thick <= 20) advice += "建議齒數：<strong>80T</strong>";
+          else if (thick >= 25) advice += "建議齒數：<strong>60T</strong>";
+          else advice += "建議規格介於 <strong>60T~80T</strong> 之間";
+        } else {
+          advice = "⚠️ 目前的轉速數據超出了自動診斷範圍，建議點擊下方按鈕諮詢專家。";
+        }
+
+        resultDiv.innerHTML = advice;
+      };
+
       // 儲存至 LocalStorage
       const saveState = () => {
         const data = {};
@@ -271,6 +326,7 @@
           data[id] = inputs[id].value;
         });
         localStorage.setItem('saw-blade-diagnosis', JSON.stringify(data));
+        updateDiagnosis();
       };
 
       // 從 LocalStorage 載入
@@ -283,11 +339,10 @@
           });
         }
 
-        // 解析 URL Hash (分享連結，支援 Unicode/中文)
+        // 解析 URL Hash
         if (window.location.hash) {
           try {
             const hash = window.location.hash.substring(1);
-            // 修正：解碼 Unicode 避免中文亂碼
             const json = decodeURIComponent(atob(hash).split('').map(c => {
               return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));
@@ -300,23 +355,20 @@
             console.error("無法解析分享連結", e);
           }
         }
+        updateDiagnosis();
       };
 
-      // 產生分享連結 (支援 Unicode/中文)
+      // 產生分享連結
       const generateShareLink = () => {
         const data = {};
         fields.forEach(id => {
           data[id] = inputs[id].value;
         });
         const json = JSON.stringify(data);
-        // 修正：編碼 Unicode 避免 btoa 報錯
         const hash = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (match, p1) => {
           return String.fromCharCode('0x' + p1);
         }));
-
-        // 同步更新網址 Hash
         window.location.hash = hash;
-
         const url = window.location.href;
 
         navigator.clipboard.writeText(url).then(() => {
@@ -324,7 +376,6 @@
           toast.style.display = 'block';
           setTimeout(() => { toast.style.display = 'none'; }, 2000);
         }).catch(() => {
-          // 備援方案：如果剪貼簿不可用，至少 Hash 已經更新
           alert("連結已產生在網址列，請自行複製");
         });
       };
