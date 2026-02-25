@@ -3,26 +3,29 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Saw Blade App</title>
+    <title>鋸片診斷系統 - Saw Blade Diagnosis</title>
     <style>
       :root {
         color-scheme: light dark;
-        --bg: #f7f7f9;
+        --bg: #f0f2f5;
         --card: #ffffff;
-        --text: #1b1b1f;
-        --muted: #5f6368;
-        --accent: #2b6cb0;
-        --border: #e0e0e5;
+        --text: #1a1a1a;
+        --muted: #65676b;
+        --accent: #000080; /* 海軍藍 */
+        --border: #dddfe2;
+        --input-bg: #f0f2f5;
+        --success: #198754;
       }
 
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #0f1115;
-          --card: #171a21;
-          --text: #f2f2f2;
-          --muted: #a0a4ad;
-          --accent: #63b3ed;
-          --border: #2a2f3a;
+          --bg: #18191a;
+          --card: #242526;
+          --text: #e4e6eb;
+          --muted: #b0b3b8;
+          --accent: #4c6ef5;
+          --border: #3e4042;
+          --input-bg: #3a3b3c;
         }
       }
 
@@ -32,222 +35,369 @@
 
       body {
         margin: 0;
-        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         background: var(--bg);
         color: var(--text);
-        line-height: 1.5;
+        line-height: 1.6;
       }
 
       header {
-        padding: 2.5rem 1.5rem 1rem;
+        background: var(--accent);
+        color: white;
+        padding: 2rem 1rem;
         text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       }
 
       header h1 {
-        margin: 0 0 0.25rem;
-        font-size: clamp(1.75rem, 2vw + 1rem, 2.5rem);
+        margin: 0;
+        font-size: 1.8rem;
+        letter-spacing: 1px;
       }
 
       header p {
-        margin: 0 auto;
-        max-width: 38rem;
-        color: var(--muted);
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
       }
 
       main {
-        max-width: 900px;
+        max-width: 600px;
         margin: 0 auto;
         padding: 1.5rem;
-        display: grid;
-        gap: 1.25rem;
       }
 
       .card {
         background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 1rem;
+        border-radius: 12px;
         padding: 1.5rem;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       }
 
       .card h2 {
         margin-top: 0;
-        font-size: 1.2rem;
-      }
-
-      .pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.35rem 0.75rem;
-        background: rgba(43, 108, 176, 0.12);
+        font-size: 1.25rem;
         color: var(--accent);
-        border-radius: 999px;
-        font-size: 0.85rem;
+        border-bottom: 2px solid var(--accent);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .diagnosis-card {
+        border: 2px solid var(--success);
+        background: rgba(25, 135, 84, 0.05);
+        display: none;
+      }
+
+      .diagnosis-card h2 {
+        color: var(--success);
+        border-color: var(--success);
+      }
+
+      .form-group {
+        margin-bottom: 1.2rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.4rem;
         font-weight: 600;
+        font-size: 0.95rem;
       }
 
-      ul {
-        padding-left: 1.2rem;
-      }
-
-      .checklist {
-        display: grid;
-        gap: 0.6rem;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-      }
-
-      .checklist li {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-      }
-
-      .checklist input[type="checkbox"] {
-        width: 1.1rem;
-        height: 1.1rem;
-        accent-color: var(--accent);
-      }
-
-      textarea {
+      input, select, textarea {
         width: 100%;
-        min-height: 140px;
-        border-radius: 0.75rem;
+        padding: 0.8rem;
         border: 1px solid var(--border);
-        padding: 0.75rem;
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text);
         font-size: 1rem;
-        background: transparent;
-        color: inherit;
-        resize: vertical;
+        transition: border-color 0.2s;
+      }
+
+      input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      .hint {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 0.3rem;
       }
 
       .actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-top: 0.75rem;
+        display: grid;
+        gap: 0.8rem;
+        margin-top: 1rem;
       }
 
       button {
+        width: 100%;
+        padding: 1rem;
         border: none;
-        background: var(--accent);
-        color: #fff;
-        padding: 0.6rem 1rem;
-        border-radius: 999px;
-        font-weight: 600;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
         cursor: pointer;
+        transition: transform 0.1s, opacity 0.2s;
       }
 
-      button.secondary {
+      button:active {
+        transform: scale(0.98);
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .btn-secondary {
         background: transparent;
         color: var(--accent);
-        border: 1px solid var(--accent);
+        border: 2px solid var(--accent);
       }
 
-      footer {
+      .btn-line {
+        background: #06c755;
+        color: white;
+      }
+
+      .footer-info {
         text-align: center;
-        padding: 1rem 1.5rem 2rem;
+        padding: 1rem;
+        font-size: 0.9rem;
         color: var(--muted);
-        font-size: 0.85rem;
+      }
+
+      .share-overlay {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        display: none;
+        animation: fadeInOut 2s forwards;
+      }
+
+      @keyframes fadeInOut {
+        0% { opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { opacity: 0; }
       }
     </style>
   </head>
   <body>
     <header>
-      <div class="pill">離線可用 · 單一檔案 · 手機友善</div>
-      <h1>Saw Blade App</h1>
-      <p>
-        這是一個輕量、可分享的工作區。把檔案放在手機裡，加入主畫面後即可像 App 一樣使用，
-        就算沒有網路也能記錄與追蹤。
-      </p>
+      <h1>鋸片診斷系統</h1>
+      <p>請填寫以下資訊，以便我們為您精確評估</p>
     </header>
 
     <main>
-      <section class="card">
-        <h2>專案摘要</h2>
-        <p>
-          這裡可放你的專案簡介、目標或聯絡方式。所有內容都在同一個 HTML 檔案中，
-          分享時只要傳一個檔案即可。
-        </p>
-        <ul>
-          <li>支援桌機與手機瀏覽器。</li>
-          <li>清單與備註會保存在本機。</li>
-          <li>不需要安裝或設定。</li>
-        </ul>
+        <section class="card diagnosis-card" id="diagnosis-card">
+        <h2>初步診斷建議</h2>
+        <div id="diagnosis-output"></div>
       </section>
 
       <section class="card">
-        <h2>待辦清單</h2>
-        <ul class="checklist">
-          <li><label><input type="checkbox" data-key="idea" />確認核心想法</label></li>
-          <li><label><input type="checkbox" data-key="content" />整理分享內容</label></li>
-          <li><label><input type="checkbox" data-key="share" />分享給協作夥伴</label></li>
-        </ul>
-      </section>
-
-      <section class="card">
-        <h2>備註</h2>
-        <textarea id="notes" placeholder="輸入備註、聯絡資訊或下一步計畫..."></textarea>
-        <div class="actions">
-          <button id="save">儲存</button>
-          <button class="secondary" id="reset">重設</button>
+        <h2>設備與鋸片資訊</h2>
+        <div class="form-group">
+          <label for="rpm">1. 機台轉速 (RPM)</label>
+          <input type="number" id="rpm" placeholder="例如: 3000">
+        </div>
+        <div class="form-group">
+          <label for="spec">2. 鋸片規格 (外徑*齒厚*齒數)</label>
+          <input type="text" id="spec" placeholder="例如: 305*3.0*100T">
+        </div>
+        <div class="form-group">
+          <label for="brand">8. 目前使用品牌</label>
+          <input type="text" id="brand" placeholder="例如: 兼房 Kanefusa">
         </div>
       </section>
+
+      <section class="card">
+        <h2>切削物資訊</h2>
+        <div class="form-group">
+          <label for="material_type">3. 切削物種類</label>
+          <input type="text" id="material_type" placeholder="例如: 鋁合金 6061">
+        </div>
+        <div class="form-group">
+          <label for="material_thickness">4. 切削物厚度 (mm)</label>
+          <input type="number" step="0.1" id="material_thickness" placeholder="例如: 10">
+        </div>
+        <div class="form-group">
+          <label for="material_shape">5. 性質敘述</label>
+          <select id="material_shape">
+            <option value="">請選擇...</option>
+            <option value="管">管 (Hollow Tube)</option>
+            <option value="條">條 (Solid Bar)</option>
+            <option value="板">板 (Plate)</option>
+            <option value="塊">塊 (Block)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="cut_type">6. 切割方式</label>
+          <select id="cut_type">
+            <option value="">請選擇...</option>
+            <option value="橫切">橫切 (Cross-cut)</option>
+            <option value="縱切">縱切 (Rip-cut)</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>使用困擾與說明</h2>
+        <div class="form-group">
+          <label for="issues">7. 有無鋸片問題使用困擾?</label>
+          <textarea id="issues" placeholder="例如: 壽命短、不利、毛邊多、切面粗糙等..."></textarea>
+        </div>
+        <p class="hint">💡 直接將設備、切削物、鋸片拍照上傳說明更好喔！</p>
+      </section>
+
+      <div class="actions">
+        <button class="btn-primary" id="copy-link">複製分享連結 (傳給專家)</button>
+        <button class="btn-line" onclick="window.location.href='https://line.me/R/ti/p/@drhawer'">導入鋸片醫生 LINE (@drhawer)</button>
+        <button class="btn-secondary" id="reset">清空資料</button>
+      </div>
+
+      <div class="footer-info">
+        感謝您提供資訊，我們將儘速為您評估合適的鋸片方案。
+      </div>
     </main>
 
-    <footer>
-      小提示：手機上可使用「加入主畫面」建立捷徑。
-    </footer>
+    <div id="toast" class="share-overlay">連結已複製到剪貼簿</div>
 
     <script>
-      const notesField = document.getElementById("notes");
-      const saveButton = document.getElementById("save");
-      const resetButton = document.getElementById("reset");
-      const checklistItems = document.querySelectorAll(".checklist input");
-
-      const loadState = () => {
-        notesField.value = localStorage.getItem("saw-blade-notes") || "";
-        checklistItems.forEach((item) => {
-          item.checked = localStorage.getItem(`saw-blade-${item.dataset.key}`) === "true";
-        });
-      };
-
-      const saveState = () => {
-        localStorage.setItem("saw-blade-notes", notesField.value.trim());
-        checklistItems.forEach((item) => {
-          localStorage.setItem(`saw-blade-${item.dataset.key}`, item.checked);
-        });
-      };
-
-      saveButton.addEventListener("click", () => {
-        saveState();
-        saveButton.textContent = "已儲存";
-        setTimeout(() => {
-          saveButton.textContent = "儲存";
-        }, 1200);
+      const fields = ['rpm', 'spec', 'brand', 'material_type', 'material_thickness', 'material_shape', 'cut_type', 'issues'];
+      const inputs = {};
+      fields.forEach(id => {
+        inputs[id] = document.getElementById(id);
       });
 
-      resetButton.addEventListener("click", () => {
-        if (confirm("確定要清除備註與清單嗎？")) {
-          notesField.value = "";
-          checklistItems.forEach((item) => {
-            item.checked = false;
+      // 診斷邏輯
+      const updateDiagnosis = () => {
+        const rpm = parseInt(inputs.rpm.value);
+        const thick = parseFloat(inputs.material_thickness.value);
+        const material = inputs.material_type.value;
+        const resultDiv = document.getElementById('diagnosis-output');
+        const resultCard = document.getElementById('diagnosis-card');
+
+        if (!rpm || !thick) {
+          resultCard.style.display = 'none';
+          return;
+        }
+
+        resultCard.style.display = 'block';
+        let advice = "";
+
+        if (material.toUpperCase().includes("HSS")) {
+          advice = "💡 HSS 鋸片需由專家根據具體設備與工況另行判斷，建議直接聯繫專家。";
+        } else if (rpm >= 1100 && rpm <= 1600) {
+          advice = "<strong>✅【低速切斷機/切鐵建議】</strong><br>";
+          if (thick < 1) advice += "建議齒數：<strong>90T</strong>";
+          else if (thick >= 1 && thick <= 2) advice += "建議齒數：<strong>80T</strong>";
+          else if (thick > 2 && thick <= 4) advice += "建議齒數：<strong>70T</strong>";
+          else advice += "建議齒數：<strong>60T</strong>";
+        } else if (rpm >= 2800 && rpm <= 3500) {
+          advice = "<strong>✅【高速切割建議】</strong><br>";
+          if (thick < 5) advice += "建議齒數：<strong>120T</strong>";
+          else if (thick >= 5 && thick <= 10) advice += "建議齒數：<strong>100T</strong>";
+          else if (thick > 10 && thick <= 20) advice += "建議齒數：<strong>80T</strong>";
+          else if (thick >= 25) advice += "建議齒數：<strong>60T</strong>";
+          else advice += "建議規格介於 <strong>60T~80T</strong> 之間";
+        } else {
+          advice = "⚠️ 目前的轉速數據超出了自動診斷範圍，建議點擊下方按鈕諮詢專家。";
+        }
+
+        resultDiv.innerHTML = advice;
+      };
+
+      // 儲存至 LocalStorage
+      const saveState = () => {
+        const data = {};
+        fields.forEach(id => {
+          data[id] = inputs[id].value;
+        });
+        localStorage.setItem('saw-blade-diagnosis', JSON.stringify(data));
+        updateDiagnosis();
+      };
+
+      // 從 LocalStorage 載入
+      const loadState = () => {
+        const saved = localStorage.getItem('saw-blade-diagnosis');
+        if (saved) {
+          const data = JSON.parse(saved);
+          fields.forEach(id => {
+            if (data[id]) inputs[id].value = data[id];
+          });
+        }
+
+        // 解析 URL Hash
+        if (window.location.hash) {
+          try {
+            const hash = window.location.hash.substring(1);
+            const json = decodeURIComponent(atob(hash).split('').map(c => {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            const hashData = JSON.parse(json);
+            fields.forEach(id => {
+              if (hashData[id]) inputs[id].value = hashData[id];
+            });
+            saveState();
+          } catch (e) {
+            console.error("無法解析分享連結", e);
+          }
+        }
+        updateDiagnosis();
+      };
+
+      // 產生分享連結
+      const generateShareLink = () => {
+        const data = {};
+        fields.forEach(id => {
+          data[id] = inputs[id].value;
+        });
+        const json = JSON.stringify(data);
+        const hash = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+          return String.fromCharCode('0x' + p1);
+        }));
+        window.location.hash = hash;
+        const url = window.location.href;
+
+        navigator.clipboard.writeText(url).then(() => {
+          const toast = document.getElementById('toast');
+          toast.style.display = 'block';
+          setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        }).catch(() => {
+          alert("連結已產生在網址列，請自行複製");
+        });
+      };
+
+      // 事件監聽
+      fields.forEach(id => {
+        inputs[id].addEventListener('input', saveState);
+      });
+
+      document.getElementById('copy-link').addEventListener('click', generateShareLink);
+
+      document.getElementById('reset').addEventListener('click', () => {
+        if (confirm('確定要清空所有填寫資訊嗎？')) {
+          fields.forEach(id => {
+            inputs[id].value = '';
           });
           saveState();
+          window.location.hash = '';
         }
       });
 
-      checklistItems.forEach((item) => {
-        item.addEventListener("change", saveState);
-      });
-
-      notesField.addEventListener("input", () => {
-        clearTimeout(notesField._timer);
-        notesField._timer = setTimeout(saveState, 800);
-      });
-
+      // 初始化
       loadState();
     </script>
   </body>
